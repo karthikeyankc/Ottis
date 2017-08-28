@@ -14,6 +14,7 @@ import requests
 import itertools
 import json
 import os
+import urlparse
 
 updater = Updater(token='YOUR TOKEN HERE')
 dispatcher = updater.dispatcher
@@ -51,7 +52,7 @@ def websearch(query):
 		title_data = title.text
 		if link != None:
 			link_data = link.get('href')[7:]
-			results[title_data] = link_data[:link_data.find('&')] # I hope luck works in favor of Ottis!
+			results[title_data] = urlparse.unquote(link_data[:link_data.find('&')]) # I hope luck works in favor of Ottis!
 		if counter == 4:
 			break
 
@@ -59,10 +60,13 @@ def websearch(query):
 
 # Search handler
 def search(bot, update):
-	search_results = websearch(update.message.text)
-	results = ""
-	for title, link in search_results.iteritems():
-		results += "<b>%s</b> - <a href=\"%s\">View Page</a>\n\n" %(title, link)
+	if update.message.text == "/search":
+		results = "Search what? You need to add a parameter to the command! Example - '/search the meaning of life'."
+	else:
+		search_results = websearch(update.message.text)
+		results = ""
+		for title, link in search_results.iteritems():
+			results += "<b>%s</b> - <a href=\"%s\">View Page</a>\n\n" %(title, link)
 
 	bot.send_message(chat_id=update.message.chat_id, text=results, parse_mode=telegram.ParseMode.HTML, disable_web_page_preview=True)
 
@@ -72,7 +76,6 @@ dispatcher.add_handler(search_handler)
 ''' Wiki Summary '''
 # MW API
 def wikisummary(query):
-
 	try:
 		url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=True&explaintext=True&titles="
 		search_query = query.replace('/wiki ', '').replace(' ', '%20') # Any filters to remove the command part in a better way?
@@ -86,7 +89,7 @@ def wikisummary(query):
 			else:
 				return value['extract']
 	except:
-		return "I'm sorry! There is some problem with your query! Try using the /search command!"	
+		return "I'm sorry! There is some problem with your query! Try using the /search command!"
 
 # Wiki handler
 def wiki(bot, update):
