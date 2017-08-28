@@ -2,8 +2,8 @@
 A simple python bot for Telegram to do quick web and wiki searches.
 
 ## Description
-Add Ottis from [here](http://t.me/mr_ottis_bot)
-Start the bot by typing `/start`.
+* Add Ottis from [here](http://t.me/mr_ottis_bot)
+* Start the bot by typing `/start`.
 
 ## Available commands
 * `/search` - A websearch using google.com.
