@@ -51,7 +51,7 @@ def websearch(query):
 		title_data = title.text
 		if link != None:
 			link_data = link.get('href')[7:]
-			results[title_data] = link_data
+			results[title_data] = link_data[:link_data.find('&')] # I hope luck works in favor of Ottis!
 		if counter == 4:
 			break
 
@@ -106,5 +106,5 @@ dispatcher.add_handler(help_handler)
 ''' Start the bot! '''
 PORT = int(os.environ.get('PORT', '5000'))
 updater.start_webhook(listen='0.0.0.0', port=PORT, url_path='YOUR TOKEN HERE')
-updater.bot.setWebhook("https://ottis.herokuapp.com/" + 'YOUR TOKEN HERE')
+updater.bot.setWebhook("https://YOUR APP NAME.herokuapp.com/" + 'YOUR TOKEN HERE')
 updater.idle()
