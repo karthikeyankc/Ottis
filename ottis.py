@@ -94,7 +94,7 @@ def wikisummary(query):
 # Wiki handler
 def wiki(bot, update):
 	summary = wikisummary(update.message.text)
-	bot.send_message(chat_id=update.message.chat_id, text=summary, parse_mode=telegram.ParseMode.HTML, disable_web_page_preview=True)
+	bot.send_message(chat_id=update.message.chat_id, text=summary, disable_web_page_preview=True)
 
 wiki_handler = CommandHandler('wiki', wiki)
 dispatcher.add_handler(wiki_handler)
