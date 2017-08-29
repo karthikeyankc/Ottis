@@ -14,9 +14,10 @@ import requests
 import itertools
 import json
 import os
+import wikipedia
 import urlparse
 
-updater = Updater(token='YOUR TOKEN HERE')
+updater = Updater(token='YOUR TOKEN')
 dispatcher = updater.dispatcher
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
@@ -52,7 +53,7 @@ def websearch(query):
 		title_data = title.text
 		if link != None:
 			link_data = link.get('href')[7:]
-			results[title_data] = urlparse.unquote(link_data[:link_data.find('&')]) # I hope luck works in favor of Ottis!
+			results[title_data] = urlparse.parse.unquote(link_data[:link_data.find('&')]) # I hope luck works in favor of Ottis!
 		if counter == 4:
 			break
 
@@ -77,24 +78,16 @@ dispatcher.add_handler(search_handler)
 # MW API
 def wikisummary(query):
 	try:
-		url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=True&explaintext=True&titles="
-		search_query = query.replace('/wiki ', '').replace(' ', '%20') # Any filters to remove the command part in a better way?
-		result_page = requests.get(url+search_query, headers=headers)
-		j = json.loads(result_page.text)
-		page_ids = j['query']['pages']
+		search_query = query.replace('/wiki ', '') 
 		
-		for key, value in page_ids.iteritems():
-			if len(value['extract']) < 50:
-				return "Seems there are a lot of Wikis with the same name, try a specific query or visit the disambiguation page for the query here - https://en.wikipedia.org/wiki/%s." %search_query.capitalize()	
-			else:
-				return value['extract']
+		return wikipedia.summary(search_query) # Use wikipedia to get easy summary
 	except:
 		return "I'm sorry! There is some problem with your query! Try using the /search command!"
 
 # Wiki handler
 def wiki(bot, update):
 	summary = wikisummary(update.message.text)
-	bot.send_message(chat_id=update.message.chat_id, text=summary, parse_mode=telegram.ParseMode.HTML, disable_web_page_preview=True)
+	bot.send_message(chat_id=update.message.chat_id, text=summary)
 
 wiki_handler = CommandHandler('wiki', wiki)
 dispatcher.add_handler(wiki_handler)
@@ -106,6 +99,7 @@ def help(bot, update):
 help_handler = CommandHandler('help', help)
 dispatcher.add_handler(help_handler)
 
+updater.start_polling()
 ''' Start the bot! '''
 PORT = int(os.environ.get('PORT', '5000'))
 updater.start_webhook(listen='0.0.0.0', port=PORT, url_path='YOUR TOKEN HERE')
