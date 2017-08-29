@@ -17,7 +17,7 @@ import os
 import wikipedia
 import urlparse
 
-updater = Updater(token='YOUR TOKEN')
+updater = Updater(token='YOUR TOKEN HERE')
 dispatcher = updater.dispatcher
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
@@ -53,7 +53,7 @@ def websearch(query):
 		title_data = title.text
 		if link != None:
 			link_data = link.get('href')[7:]
-			results[title_data] = urlparse.parse.unquote(link_data[:link_data.find('&')]) # I hope luck works in favor of Ottis!
+			results[title_data] = urlparse.unquote(link_data[:link_data.find('&')]) # I hope luck works in favor of Ottis!
 		if counter == 4:
 			break
 
