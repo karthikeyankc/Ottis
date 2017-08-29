@@ -86,6 +86,8 @@ def wikisummary(query):
 		for key, value in page_ids.iteritems():
 			if len(value['extract']) < 50:
 				return "Seems there are a lot of Wikis with the same name, try a specific query or visit the disambiguation page for the query here - https://en.wikipedia.org/wiki/%s." %search_query.capitalize()	
+			elif len(value['extract']) >= 4000: 
+				return "The summary is too big to read it here. Read the complete article/page here - https://en.wikipedia.org/wiki/%s." %search_query.capitalize()
 			else:
 				return value['extract']
 	except:
