@@ -23,7 +23,15 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 # Scraper header
 headers = {'Accept': 'text/html', 'User-Agent': 'Ottis Telegram Bot 0.0.1'}
-
+'''Helpers'''
+#Validate result
+def validate_search(query):
+	wrong_results = ['Images for', 'Videos for', 'News for', 'Maps for']
+	for w_res in wrong_results:
+		if query.startswith(w_res):
+			return False
+		else:
+			return True
 ''' Start '''
 def start(bot, update):
 	bot.send_message(chat_id=update.message.chat_id, text="I'm Ottis! What menial task can I do for you? For now, I can do two tasks! Type /help to know more!")
@@ -40,22 +48,25 @@ def websearch(query):
 	soup = BeautifulSoup(result_page.content, 'html.parser')
 
 	titles = soup.find_all('h3', {'class':'r'})
-	links = []
+	links = [] 
 	counter = 1
-	results = {}
+	results = []
 
 	for title in titles:
 		links.append(title.find('a'))
 
 	for title, link in itertools.izip_longest(titles, links):
-		counter += 1
 		title_data = title.text
-		if link != None:
-			link_data = link.get('href')[7:]
-			results[title_data] = urlparse.unquote(link_data[:link_data.find('&')]) # I hope luck works in favor of Ottis!
 		if counter == 4:
 			break
-
+		if validate_search(title_data) == True and link != None:
+			link_data = urlparse.urlparse(link.get('href'), allow_fragments=False)
+			results.append({
+				'link' : urlparse.parse_qs(link_data.query)['q'][0],
+				'title' : title_data
+			})
+			counter += 1
+		
 	return results
 
 # Search handler
@@ -65,8 +76,8 @@ def search(bot, update):
 	else:
 		search_results = websearch(update.message.text)
 		results = ""
-		for title, link in search_results.iteritems():
-			results += "<b>%s</b> - <a href=\"%s\">View Page</a>\n\n" %(title, link)
+		for result in search_results:
+			results += "<b>%s</b> - <a href=\"%s\">View Page</a>\n\n" %(result['title'], result['link'])
 
 	bot.send_message(chat_id=update.message.chat_id, text=results, parse_mode=telegram.ParseMode.HTML, disable_web_page_preview=True)
 
@@ -108,7 +119,8 @@ def help(bot, update):
 help_handler = CommandHandler('help', help)
 dispatcher.add_handler(help_handler)
 
-''' Start the bot! '''
+
+''' Start the bot!'''
 PORT = int(os.environ.get('PORT', '5000'))
 updater.start_webhook(listen='0.0.0.0', port=PORT, url_path='YOUR TOKEN HERE')
 updater.bot.setWebhook("https://YOUR APP NAME.herokuapp.com/" + 'YOUR TOKEN HERE')
